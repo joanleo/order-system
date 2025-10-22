@@ -15,7 +15,7 @@ import java.util.List;
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI orderSystemOpenAPI() {
+    OpenAPI orderSystemOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title("Order System API")
@@ -33,7 +33,7 @@ public class SwaggerConfig {
                                 .url("http://localhost:8090")
                                 .description("Servidor de Desarrollo"),
                         new Server()
-                                .url("https://api.ordersystem.com")
+                                .url("https://order-system-hdns.onrender.com")
                                 .description("Servidor de Producción")))
                 .tags(List.of(
                         new Tag()
