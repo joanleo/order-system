@@ -51,16 +51,77 @@ cd order-system
 ### 2️⃣ Configurar el archivo de propiedades
 Copia el archivo de ejemplo y agrega tus credenciales de Neon:
 
-```
+```bash
 cp src/main/resources/application-example.properties src/main/resources/application.properties
 ```
 
 Edita el archivo:
 
+```bash
 spring.datasource.url=jdbc:postgresql://<HOST>:5432/<DATABASE>?sslmode=require 
 spring.datasource.username=<USER> 
 spring.datasource.password=<PASSWORD> 
 spring.jpa.hibernate.ddl-auto=update 
+```
+
+### 3️⃣ Ejecutar el proyecto 
+
+Con Maven:
+
+```bash
+mvn spring-boot:run
+```
+
+O desde tu IDE (STS / IntelliJ / VS Code).
+
+### 4️⃣ Probar los endpoints
+
+Listar clientes
+
+```bash
+GET http://localhost:8080/api/clientes
+```
+
+Crear cliente
+
+```bash
+POST http://localhost:8080/api/clientes
+Content-Type: application/json
+
+{
+  "nombre": "Carlos Ramírez",
+  "correo": "carlos@ejemplo.com",
+  "telefono": "3124567890"
+}
+```
+
+###  🧩 Despliegue (Render / Fly.io)
+
+Para desplegar el proyecto con datos reales:
+
+1. Crea un servicio web en Render.com o Fly.io.
+
+2. Usa tu base de datos de Neon como datasource.
+
+3. Define las variables de entorno en el panel:
+
+```bash
+SPRING_DATASOURCE_URL=jdbc:postgresql://...
+SPRING_DATASOURCE_USERNAME=...
+SPRING_DATASOURCE_PASSWORD=...
+```
+
+4. Render construirá automáticamente el proyecto desde tu repo GitHub.
+
+###  🧾 Licencia
+
+Este proyecto está bajo la licencia MIT – consulta el archivo LICENSE
+ para más detalles.
 
 
+### 👨‍💻 Autor
 
+Joan Leon
+Desarrollador Backend | Spring Boot | Python | Arquitectura Hexagonal
+LinkedIn
+ • GitHub
