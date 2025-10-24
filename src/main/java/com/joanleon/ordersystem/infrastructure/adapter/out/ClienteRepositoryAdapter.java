@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.joanleon.ordersystem.application.port.out.ClienteRepositoryPort;
 import com.joanleon.ordersystem.domain.model.Cliente;
 import com.joanleon.ordersystem.infrastructure.adapter.out.entity.ClienteEntity;
+import com.joanleon.ordersystem.infrastructure.adapter.out.mapper.ClienteMapper;
 import com.joanleon.ordersystem.infrastructure.adapter.out.repository.ClienteRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -17,57 +18,41 @@ import lombok.RequiredArgsConstructor;
 public class ClienteRepositoryAdapter implements ClienteRepositoryPort {
     
     private final ClienteRepository jpaRepository;
+    private final ClienteMapper mapper;
 
     @Override
     public Cliente save(Cliente cliente) {
-        ClienteEntity entity = toEntity(cliente);
-        ClienteEntity saved = jpaRepository.save(entity);
-        return toDomain(saved);
+    	ClienteEntity entity = mapper.toEntity(cliente);
+        ClienteEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
     }
 
     @Override
     public Optional<Cliente> findByIdActivo(Long id) {
         return jpaRepository.findByIdAndActivoTrue(id)
-                .map(this::toDomain);
+                .map(mapper::toDomain);
     }
 
-    private ClienteEntity toEntity(Cliente cliente) {
-        // Mapear de dominio a entidad
-        ClienteEntity entity = new ClienteEntity();
-        entity.setId(cliente.getId());
-        entity.setNombre(cliente.getNombre());
-        entity.setEmail(cliente.getEmail());
-        entity.setTelefono(cliente.getTelefono());
-        entity.setActivo(cliente.isActivo());
-        return entity;
-    }
-    private Cliente toDomain(ClienteEntity entity) {
-        return Cliente.builder()
-            .id(entity.getId())
-            .nombre(entity.getNombre())
-            .email(entity.getEmail())
-            .telefono(entity.getTelefono())
-            .activo(entity.isActivo())
-            .build();
-    }
+    
+    
 
 	@Override
 	public List<Cliente> findAll() {
 		return jpaRepository.findAll()
                 .stream()
-                .map(this::toDomain)
+                .map(mapper::toDomain)
                 .toList();
 	}
 
 	@Override
 	public void delete(Cliente cliente) {
-        ClienteEntity entity = toEntity(cliente);
+        ClienteEntity entity = mapper.toEntity(cliente);
         jpaRepository.delete(entity);
     }
 
 	@Override
 	public Optional<Cliente> findById(Long id) {
 		return jpaRepository.findById(id)
-                .map(this::toDomain);
+                .map(mapper::toDomain);
 	}
 }
