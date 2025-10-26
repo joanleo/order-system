@@ -1,12 +1,13 @@
 package com.joanleon.ordersystem.domain.exception;
 
-public class ClienteNoEncontradoException extends RuntimeException {
+// Excepciones específicas de Cliente
+public class ClienteNoEncontradoException extends ClienteException {
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public ClienteNoEncontradoException(String message) {
-        super(message);
+	public ClienteNoEncontradoException(Long id) {
+        super("Cliente no encontrado con ID: " + id);
     }
 }

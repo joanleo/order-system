@@ -2,6 +2,8 @@ package com.joanleon.ordersystem.infrastructure.adapter.in.rest;
 
 import com.joanleon.ordersystem.application.dto.*;
 import com.joanleon.ordersystem.application.port.in.FacturaUseCase;
+import com.joanleon.ordersystem.application.service.FacturaPdfService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,7 +14,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +30,7 @@ import java.util.List;
 public class FacturaController {
 
     private final FacturaUseCase facturaUseCase;
+    private final FacturaPdfService pdfService;
 
     @Operation(
         summary = "Crear factura desde pedido",
@@ -324,4 +329,58 @@ public class FacturaController {
         PagoResponse response = facturaUseCase.obtenerPagoPorId(id);
         return ResponseEntity.ok(response);
     }
+    
+    @Operation(
+        summary = "Descargar factura en PDF",
+        description = "Genera y descarga una factura en formato PDF"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "PDF generado exitosamente"
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Factura no encontrada",
+            content = @Content
+        )
+    })
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> descargarPdf(
+        @Parameter(description = "ID de la factura", required = true, example = "1")
+        @PathVariable Long id) {
+        
+        byte[] pdf = pdfService.generarPdf(id);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "factura-" + id + ".pdf");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        
+        return ResponseEntity.ok()
+            .headers(headers)
+            .body(pdf);
+    }
+    
+    @Operation(
+	    summary = "Obtener estadísticas de facturación",
+	    description = "Retorna estadísticas completas de facturación para un año específico"
+	)
+	@ApiResponses(value = {
+	    @ApiResponse(
+	        responseCode = "200",
+	        description = "Estadísticas obtenidas exitosamente",
+	        content = @Content(
+	            mediaType = "application/json",
+	            schema = @Schema(implementation = EstadisticasFacturacion.class)
+	        )
+	    )
+	})
+	@GetMapping("/estadisticas")
+	public ResponseEntity<EstadisticasFacturacion> obtenerEstadisticas(
+	    @Parameter(description = "Año para las estadísticas", example = "2025")
+	    @RequestParam(defaultValue = "2025") int anio) {
+	    EstadisticasFacturacion estadisticas = facturaUseCase.obtenerEstadisticas(anio);
+	    return ResponseEntity.ok(estadisticas);
+	}
 }

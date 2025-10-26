@@ -4,6 +4,8 @@ import com.joanleon.ordersystem.application.dto.ProductoRequest;
 import com.joanleon.ordersystem.application.dto.ProductoResponse;
 import com.joanleon.ordersystem.application.port.in.ProductoUseCase;
 import com.joanleon.ordersystem.application.port.out.ProductoRepositoryPort;
+import com.joanleon.ordersystem.domain.exception.CodigoProductoDuplicadoException;
+import com.joanleon.ordersystem.domain.exception.ProductoNoEncontradoException;
 import com.joanleon.ordersystem.domain.model.Producto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ public class ProductoService implements ProductoUseCase {
         // Validar que no exista el código
         productoRepository.findByCodigo(request.getCodigo())
             .ifPresent(p -> {
-                throw new RuntimeException("Ya existe un producto con el código: " + request.getCodigo());
+                throw new CodigoProductoDuplicadoException(request.getCodigo());
             });
 
         // Crear producto
@@ -42,14 +44,14 @@ public class ProductoService implements ProductoUseCase {
     @Override
     public ProductoResponse obtenerProductoPorId(Long id) {
         Producto producto = productoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+            .orElseThrow(() -> new ProductoNoEncontradoException(id));
         return ProductoResponse.fromDomain(producto);
     }
 
     @Override
     public ProductoResponse obtenerProductoPorCodigo(Integer codigo) {
         Producto producto = productoRepository.findByCodigo(codigo)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado con código: " + codigo));
+            .orElseThrow(() -> new ProductoNoEncontradoException(codigo));
         return ProductoResponse.fromDomain(producto);
     }
 
@@ -65,13 +67,13 @@ public class ProductoService implements ProductoUseCase {
     public ProductoResponse actualizarProducto(Long id, ProductoRequest request) {
         // Buscar producto existente
         Producto productoExistente = productoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+            .orElseThrow(() -> new ProductoNoEncontradoException(id));
 
         // Validar que el código no esté en uso por otro producto
         productoRepository.findByCodigo(request.getCodigo())
             .ifPresent(p -> {
                 if (!p.getId().equals(id)) {
-                    throw new RuntimeException("El código ya está en uso por otro producto");
+                    throw new CodigoProductoDuplicadoException(request.getCodigo());
                 }
             });
 
@@ -93,7 +95,7 @@ public class ProductoService implements ProductoUseCase {
     public void eliminarProducto(Long id) {
         // Verificar que exista el producto
         productoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+            .orElseThrow(() -> new ProductoNoEncontradoException(id));
         
         productoRepository.deleteById(id);
     }

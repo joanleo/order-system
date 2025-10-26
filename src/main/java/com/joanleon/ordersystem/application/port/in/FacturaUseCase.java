@@ -1,5 +1,6 @@
 package com.joanleon.ordersystem.application.port.in;
 
+import com.joanleon.ordersystem.application.dto.EstadisticasFacturacion;
 import com.joanleon.ordersystem.application.dto.FacturaRequest;
 import com.joanleon.ordersystem.application.dto.FacturaResponse;
 import com.joanleon.ordersystem.application.dto.PagoRequest;
@@ -29,4 +30,6 @@ public interface FacturaUseCase {
     List<PagoResponse> listarPagosPorFactura(Long facturaId);
     List<PagoResponse> listarPagosPorCliente(Long clienteId);
     PagoResponse obtenerPagoPorId(Long id);
+    
+    EstadisticasFacturacion obtenerEstadisticas(int anio);
 }
